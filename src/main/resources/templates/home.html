@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doppler Effect Simulator</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <!-- Import MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Doppler Effect Simulator</h1>
+    </header>
+
+    <main class="container">
+        <div class="controls">
+            <h2>Simulation Controls</h2>
+            <div class="control-group">
+                <label for="observerSpeed">Observer Speed (m/s):</label>
+                <input type="number" id="observerSpeed" value="0">
+            </div>
+            <div class="control-group">
+                <label for="sourceSpeed">Ambulance Speed (m/s):</label>
+                <input type="number" id="sourceSpeed" value="30">
+            </div>
+            <div class="control-group">
+                <label for="sourceFreq">Source Frequency (Hz):</label>
+                <input type="number" id="sourceFreq" value="500">
+            </div>
+            <div class="control-group">
+                <label for="sourcePower">Source Power (Watts):</label>
+                <input type="number" id="sourcePower" value="100">
+            </div>
+            <button id="startButton" onclick="startSimulation()">Start</button>
+            <button id="stopButton" onclick="stopSimulation()" disabled>Stop</button>
+            <button id="resetButton" onclick="resetSimulation()">Reset</button>
+        </div>
+
+        <div class="simulation-pane" id="simulationPane">
+            <div id="observer" class="object">
+                <div class="icon">🧍</div>
+                <span>Observer</span>
+            </div>
+            <div id="ambulance" class="object">
+                <div class="icon">🚑</div>
+                <span>Ambulance</span>
+            </div>
+        </div>
+        
+        <div class="data-container">
+            <div class="output">
+                <h2>Live Data</h2>
+                <p>Observed Frequency: <span id="observedFreq">N/A</span> Hz</p>
+                <p>Distance: <span id="distance">N/A</span> m</p>
+                <p>Sound Intensity: <span id="intensity">N/A</span> W/m²</p>
+            </div>
+            
+            <div class="calculations">
+                <h2>Calculation Details</h2>
+                <div id="calcDetails">
+                    <h3>Doppler Shift</h3>
+                    <p><strong>Formula:</strong></p>
+                    <div id="staticDopplerFormula">
+                        $$ f' = f_0 \left( \frac{v + v_0}{v - v_s} \right) $$
+                    </div>
+                    
+                    <hr>
+                    
+                    <p><strong>Live Calculation:</strong></p>
+                    <!-- Container for dynamic LaTeX -->
+                    <div id="liveDopplerEq" style="font-size: 1.1em; min-height: 60px;">
+                        $$ f' = 500 \left( \frac{343 + 0.00}{343 - 0.00} \right) = 500.00 \text{ Hz} $$
+                    </div>
+                    
+                    <hr>
+                    
+                    <h3>Intensity (2D Cylindrical Wave)</h3>
+                    <p><strong>Formula:</strong></p>
+                    <div id="staticIntensityFormula">
+                        $$ I = \frac{P}{2\pi r} $$
+                    </div>
+                    
+                    <p><strong>Live Calculation:</strong></p>
+                    <!-- Container for dynamic LaTeX -->
+                    <div id="liveIntensityEq" style="font-size: 1.1em; min-height: 60px;">
+                        $$ I = \frac{100}{2\pi (0.00)} = 0.00 \text{ W/m}^2 $$
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+}
+
+header {
+    width: 100%;
+    background-color: #005a9c;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.controls, .simulation-pane, .output, .calculations {
+    background: white;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.data-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.output, .calculations {
+    flex: 1;
+    min-width: 300px;
+}
+
+.controls h2, .output h2, .calculations h2 {
+    margin-top: 0;
+    color: #005a9c;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.control-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+#startButton {
+    background-color: #28a745;
+}
+#startButton:hover {
+    background-color: #218838;
+}
+#startButton:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+}
+
+#stopButton {
+    background-color: #ffc107;
+    color: #333;
+}
+#stopButton:hover {
+    background-color: #e0a800;
+}
+#stopButton:disabled {
+    background-color: #ffeeba;
+    cursor: not-allowed;
+}
+
+#resetButton {
+    background-color: #dc3545;
+}
+#resetButton:hover {
+    background-color: #c82333;
+}
+
+.simulation-pane {
+    position: relative;
+    height: 400px; /* Increased height */
+    border: 2px solid #ccc;
+    overflow: hidden;
+    background-color: #eef;
+}
+
+.object {
+    position: absolute;
+    bottom: 50%; /* Centered vertically */
+    transform: translateY(50%); /* Adjust for height */
+    width: 80px;
+    text-align: center;
+    transition: transform 0.1s linear; /* Smooth movement */
+}
+
+.object .icon {
+    font-size: 60px; /* Slightly larger icons */
+    display: block;
+    margin: 0 auto;
+}
+
+#observer {
+    left: 50%; /* Start in middle */
+    /* transform is handled in JS for dragging, but initial center needs care */
+}
+
+#ambulance {
+    left: -100px; /* Start off-screen */
+}
+
+.output p, .calculations p {
+    font-size: 1.1em;
+    background: #e9ecef;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+.output span, .calculations span {
+    font-weight: bold;
+    color: #005a9c;
+}
+
+.calculations hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 10px 0;
+}
