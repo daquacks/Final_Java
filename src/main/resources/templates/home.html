@@ -36,9 +36,13 @@
             <button id="startButton" onclick="startSimulation()">Start</button>
             <button id="stopButton" onclick="stopSimulation()" disabled>Stop</button>
             <button id="resetButton" onclick="resetSimulation()">Reset</button>
+            <button id="toggleWavesButton" onclick="toggleWaves()">Hide Waves</button>
         </div>
 
         <div class="simulation-pane" id="simulationPane">
+            <!-- Canvas for drawing waves -->
+            <canvas id="waveCanvas"></canvas>
+            
             <div id="observer" class="object">
                 <div class="icon">🧍</div>
                 <span>Observer</span>

@@ -5,6 +5,9 @@ const simulationPane = document.getElementById('simulationPane');
 const startButton = document.getElementById('startButton');
 const stopButton = document.getElementById('stopButton');
 const resetButton = document.getElementById('resetButton');
+const toggleWavesButton = document.getElementById('toggleWavesButton');
+const waveCanvas = document.getElementById('waveCanvas');
+const ctx = waveCanvas.getContext('2d');
 
 // --- Input Elements ---
 const observerSpeedInput = document.getElementById('observerSpeed');
@@ -17,7 +20,7 @@ const observedFreqEl = document.getElementById('observedFreq');
 const distanceEl = document.getElementById('distance');
 const intensityEl = document.getElementById('intensity');
 
-// --- Calculation Display Elements (Containers for LaTeX) ---
+// --- Calculation Display Elements ---
 const liveDopplerEq = document.getElementById('liveDopplerEq');
 const liveIntensityEq = document.getElementById('liveIntensityEq');
 
@@ -63,14 +66,31 @@ function initAudio() {
 let simulationRunning = false;
 let animationFrameId;
 let isPaused = false; 
+let showWaves = true;
 
 // Physics State (Meters)
 let sourceX = -50; 
 let observerX = 0;
+let simulationTime = 0; 
 
 const SPEED_OF_SOUND = 343.0; 
 const PIXELS_PER_METER = 10; 
 const PASSING_DISTANCE = 10; 
+
+const TIME_SCALE = 0.5; 
+
+// Wave Animation State
+let waves = []; 
+let lastWaveEmissionTime = 0;
+const WAVE_EMISSION_INTERVAL = 0.13; 
+
+// --- Canvas Setup ---
+function resizeCanvas() {
+    waveCanvas.width = simulationPane.offsetWidth;
+    waveCanvas.height = simulationPane.offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); 
 
 // --- Draggable Observer Logic ---
 let isDragging = false;
@@ -115,9 +135,80 @@ function initPositions() {
     sourceX = -50;
     const visualSourceX = centerX + (sourceX * PIXELS_PER_METER);
     ambulanceEl.style.left = `${visualSourceX}px`;
+    
+    waves = [];
+    ctx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+    simulationTime = 0;
+    lastWaveEmissionTime = 0;
 }
 
 initPositions();
+
+
+// --- Wave Logic ---
+function toggleWaves() {
+    showWaves = !showWaves;
+    toggleWavesButton.textContent = showWaves ? "Hide Waves" : "Show Waves";
+    if (!showWaves) {
+        ctx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+    }
+}
+
+function updateWaves(dt, sourceSpeed) {
+    if (!showWaves) return;
+
+    const centerX = waveCanvas.width / 2;
+    const centerY = waveCanvas.height / 2;
+
+    simulationTime += dt;
+
+    if (simulationRunning && !isPaused) {
+        if (simulationTime - lastWaveEmissionTime > WAVE_EMISSION_INTERVAL) {
+            const visualSourceX = centerX + (sourceX * PIXELS_PER_METER);
+            
+            waves.push({
+                x: visualSourceX, 
+                y: centerY,
+                radius: 0
+            });
+            lastWaveEmissionTime = simulationTime;
+        }
+    }
+
+    const VISUAL_SPEED_OF_SOUND = 60.0; 
+    const waveSpeedPixels = VISUAL_SPEED_OF_SOUND * PIXELS_PER_METER; 
+
+    for (let i = waves.length - 1; i >= 0; i--) {
+        let wave = waves[i];
+        wave.radius += waveSpeedPixels * dt; 
+        
+        if (wave.radius > waveCanvas.width * 1.2) {
+            waves.splice(i, 1);
+        }
+    }
+}
+
+function drawWaves() {
+    if (!showWaves) return;
+    
+    ctx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+    
+    ctx.lineWidth = 3;
+
+    const sourceMovingRight = parseFloat(sourceSpeedInput.value) >= 0;
+
+    for (let wave of waves) {
+        ctx.beginPath();
+        ctx.arc(wave.x, wave.y, wave.radius, -Math.PI/2, Math.PI/2); 
+        ctx.strokeStyle = sourceMovingRight ? 'rgba(255, 0, 0, 0.6)' : 'rgba(0, 0, 255, 0.6)'; 
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.arc(wave.x, wave.y, wave.radius, Math.PI/2, 3*Math.PI/2); 
+        ctx.strokeStyle = sourceMovingRight ? 'rgba(0, 0, 255, 0.6)' : 'rgba(255, 0, 0, 0.6)'; 
+        ctx.stroke();
+    }
+}
 
 
 // --- Simulation Logic ---
@@ -142,6 +233,10 @@ function startSimulation() {
         if (sourceX > observerX - 20) {
             sourceX = observerX - 50;
         }
+        
+        waves = [];
+        simulationTime = 0;
+        lastWaveEmissionTime = 0;
     }
     
     isPaused = false; 
@@ -151,14 +246,13 @@ function startSimulation() {
     async function animationLoop() {
         if (!simulationRunning) return;
 
-        // 1. Get current values from inputs
         const sourceSpeed = parseFloat(sourceSpeedInput.value); 
         const observerSpeed = parseFloat(observerSpeedInput.value); 
         const baseFreq = parseFloat(sourceFreqInput.value); 
         const sourcePower = parseFloat(sourcePowerInput.value); 
 
-        // 2. Update positions
-        const dt = 1/60;
+        const dt = (1/60) * TIME_SCALE;
+        
         sourceX += sourceSpeed * dt; 
         observerX += observerSpeed * dt;
 
@@ -167,8 +261,10 @@ function startSimulation() {
         
         ambulanceEl.style.left = `${visualSourceX}px`;
         observerEl.style.left = `${visualObserverX}px`;
+        
+        updateWaves(dt, sourceSpeed);
+        drawWaves();
 
-        // 3. Calculate Geometry
         const dx = sourceX - observerX; 
         const dy = PASSING_DISTANCE;    
         const totalDistance = Math.sqrt(dx*dx + dy*dy);
@@ -177,24 +273,19 @@ function startSimulation() {
         const vSourceRadial = sourceSpeed * ux;
         const vObserverRadial = observerSpeed * (-ux);
 
-        // 4. Call Java Backend for Calculations (Two separate calls)
         try {
-            // Call 1: Frequency
             const freqResponse = await fetch(`/calculate-frequency?sourceFrequency=${baseFreq}&sourceVelocity=${vSourceRadial}&observerVelocity=${vObserverRadial}`);
             const freqData = await freqResponse.json();
             const observedFreq = freqData.observedFrequency;
 
-            // Call 2: Intensity
             const intResponse = await fetch(`/calculate-intensity?sourcePower=${sourcePower}&distance=${totalDistance}`);
             const intData = await intResponse.json();
             const intensityWatts = intData.intensity;
 
-            // 5. Update Audio
             if (oscillator) {
                 oscillator.frequency.setTargetAtTime(observedFreq, audioContext.currentTime, 0.1);
             }
             
-            // Audio Volume
             const referenceIntensity = 1.59; 
             let gainValue = intensityWatts / referenceIntensity;
             gainValue = Math.min(gainValue, 1.0); 
@@ -203,12 +294,10 @@ function startSimulation() {
                 gainNode.gain.setTargetAtTime(gainValue, audioContext.currentTime, 0.1);
             }
 
-            // 6. Update UI Text
             observedFreqEl.textContent = observedFreq.toFixed(2);
             distanceEl.textContent = totalDistance.toFixed(2); 
             intensityEl.textContent = intensityWatts.toFixed(4);
 
-            // 7. Update LaTeX Equations (Throttled)
             frameCount++;
             if (frameCount % 10 === 0) { 
                 updateLatex(baseFreq, vObserverRadial, vSourceRadial, observedFreq, sourcePower, totalDistance, intensityWatts);
@@ -218,7 +307,6 @@ function startSimulation() {
             console.error("Error fetching calculation:", error);
         }
 
-        // 8. Check for end condition
         if (visualSourceX > simulationPane.offsetWidth + 100) {
             stopSimulation(true); 
         } else {
@@ -235,10 +323,13 @@ function updateLatex(f0, v0, vs, fPrime, P, r, I) {
     const dopplerLatex = `$$ f' = ${f0} \\left( \\frac{343 + ${v0.toFixed(2)}}{343 - ${vs.toFixed(2)}} \\right) = ${fPrime.toFixed(2)} \\text{ Hz} $$`;
     const intensityLatex = `$$ I = \\frac{${P}}{2\\pi (${r.toFixed(2)})} = ${I.toFixed(4)} \\text{ W/m}^2 $$`;
 
-    liveDopplerEq.innerHTML = dopplerLatex;
-    liveIntensityEq.innerHTML = intensityLatex;
-
-    MathJax.typesetPromise([liveDopplerEq, liveIntensityEq]).catch((err) => console.log(err));
+    if (liveDopplerEq && liveIntensityEq) {
+        liveDopplerEq.innerHTML = dopplerLatex;
+        liveIntensityEq.innerHTML = intensityLatex;
+        
+        MathJax.typesetPromise([liveDopplerEq, liveIntensityEq]).catch((err) => {
+        });
+    }
 }
 
 function stopSimulation(finished = false) {

@@ -105,12 +105,29 @@ button {
     background-color: #c82333;
 }
 
+#toggleWavesButton {
+    background-color: #6c757d;
+}
+#toggleWavesButton:hover {
+    background-color: #5a6268;
+}
+
 .simulation-pane {
     position: relative;
     height: 400px; /* Increased height */
     border: 2px solid #ccc;
     overflow: hidden;
     background-color: #eef;
+}
+
+/* Canvas for waves */
+#waveCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Behind objects */
 }
 
 .object {
@@ -120,6 +137,7 @@ button {
     width: 80px;
     text-align: center;
     transition: transform 0.1s linear; /* Smooth movement */
+    z-index: 1; /* Above waves */
 }
 
 .object .icon {
