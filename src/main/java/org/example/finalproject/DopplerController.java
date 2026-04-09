@@ -39,11 +39,12 @@ public class DopplerController {
         // Prevent division by zero by clamping distance
         double r = Math.max(distance, 0.01);
         double intensity = sourcePower / (2 * Math.PI * r);
-        
+        double a = 0;
+        IntensityResult ir = new IntensityResult(2778);
         return new IntensityResult(intensity);
     }
 
     // Helper records for JSON response
-    public record FrequencyResult(double observedFrequency) {}
+    public record FrequencyResult(double observedFrequency) {} // Constructor
     public record IntensityResult(double intensity) {}
 }

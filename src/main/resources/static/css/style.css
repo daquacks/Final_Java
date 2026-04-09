@@ -7,46 +7,68 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.container {
-    width: 90%;
-    max-width: 1200px;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent body scroll if possible */
 }
 
 header {
     width: 100%;
     background-color: #005a9c;
     color: white;
-    padding: 20px 0;
+    padding: 15px 0;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Don't shrink header */
 }
 
-.controls, .simulation-pane, .output, .calculations {
+.container {
+    width: 98%;
+    max-width: 1800px;
+    flex-grow: 1; /* Fill remaining height */
+    display: flex;
+    flex-direction: row; /* Side-by-side layout */
+    gap: 15px;
+    padding: 15px 0;
+    box-sizing: border-box;
+    overflow: hidden; /* Contain children */
+}
+
+/* Common Panel Styles */
+.panel {
     background: white;
-    margin-top: 20px;
-    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
-
-.data-container {
+    padding: 20px;
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    overflow-y: auto; /* Scroll if content is too long */
 }
 
-.output, .calculations {
-    flex: 1;
-    min-width: 300px;
+/* Column 1: Controls */
+.controls-panel {
+    flex: 1; /* Takes 1 part */
+    min-width: 250px;
+    max-width: 300px;
 }
 
-.controls h2, .output h2, .calculations h2 {
-    margin-top: 0;
-    color: #005a9c;
+/* Column 2: Simulation (Main Focus) */
+.simulation-panel {
+    flex: 3; /* Takes 3 parts (Largest) */
+    position: relative;
+    background-color: #eef;
+    border: 2px solid #ccc;
+    padding: 0; /* No padding for canvas */
+    overflow: hidden; /* Hide objects going off screen */
 }
 
+/* Column 3: Data & Calculations */
+.data-panel {
+    flex: 1.5; /* Takes 1.5 parts */
+    min-width: 350px;
+    max-width: 450px;
+}
+
+/* Controls Styling */
 .control-group {
     margin-bottom: 15px;
 }
@@ -55,6 +77,7 @@ header {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    font-size: 0.9em;
 }
 
 .control-group input {
@@ -65,111 +88,141 @@ header {
     border-radius: 4px;
 }
 
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 button {
-    padding: 10px 15px;
+    padding: 10px;
     border: none;
     border-radius: 4px;
     color: white;
     cursor: pointer;
     font-weight: bold;
-    margin-right: 10px;
+    text-align: center;
 }
 
-#startButton {
-    background-color: #28a745;
-}
-#startButton:hover {
-    background-color: #218838;
-}
-#startButton:disabled {
-    background-color: #94d3a2;
-    cursor: not-allowed;
-}
+#startButton { background-color: #28a745; }
+#startButton:hover { background-color: #218838; }
+#startButton:disabled { background-color: #94d3a2; cursor: not-allowed; }
 
-#stopButton {
-    background-color: #ffc107;
-    color: #333;
-}
-#stopButton:hover {
-    background-color: #e0a800;
-}
-#stopButton:disabled {
-    background-color: #ffeeba;
-    cursor: not-allowed;
-}
+#stopButton { background-color: #ffc107; color: #333; }
+#stopButton:hover { background-color: #e0a800; }
+#stopButton:disabled { background-color: #ffeeba; cursor: not-allowed; }
 
-#resetButton {
-    background-color: #dc3545;
-}
-#resetButton:hover {
-    background-color: #c82333;
-}
+#resetButton { background-color: #dc3545; }
+#resetButton:hover { background-color: #c82333; }
 
-#toggleWavesButton {
-    background-color: #6c757d;
-}
-#toggleWavesButton:hover {
-    background-color: #5a6268;
-}
+#toggleWavesButton { background-color: #6c757d; }
+#toggleWavesButton:hover { background-color: #5a6268; }
 
-.simulation-pane {
-    position: relative;
-    height: 400px; /* Increased height */
-    border: 2px solid #ccc;
-    overflow: hidden;
-    background-color: #eef;
-}
-
-/* Canvas for waves */
+/* Simulation Styling */
 #waveCanvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0; /* Behind objects */
+    z-index: 0;
 }
 
 .object {
     position: absolute;
-    bottom: 50%; /* Centered vertically */
-    transform: translateY(50%); /* Adjust for height */
-    width: 80px;
+    bottom: 50%;
+    transform: translate(-50%, 50%); /* Centers the object on its left coordinate */
+    /* width: 80px; removed explicit width so it sizes to content */
     text-align: center;
-    transition: transform 0.1s linear; /* Smooth movement */
-    z-index: 1; /* Above waves */
+    transition: transform 0.1s linear;
+    z-index: 1;
+    pointer-events: auto; /* Allow clicking */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.object .icon {
-    font-size: 60px; /* Slightly larger icons */
+.object span {
+    background-color: rgba(255,255,255,0.7);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+/* Sprite Styling */
+.sprite-icon {
     display: block;
     margin: 0 auto;
 }
 
-#observer {
-    left: 50%; /* Start in middle */
-    /* transform is handled in JS for dragging, but initial center needs care */
+.ambulance-img {
+    width: 100px; /* Adjust based on your actual webp size */
+    height: auto;
 }
 
-#ambulance {
-    left: -100px; /* Start off-screen */
+.observer-img {
+    height: 64px; /* Reduced from maybe too big down to 64px */
+    width: auto; 
+    cursor: grab;
 }
 
-.output p, .calculations p {
-    font-size: 1.1em;
+#observer { 
+    left: 50%; 
+    z-index: 2; /* Put observer above ambulance */
+}
+
+#ambulance { 
+    left: -100px; 
+    z-index: 1; /* Below observer */
+}
+
+/* Data Panel Styling */
+.output-section p {
+    font-size: 1em;
     background: #e9ecef;
-    padding: 10px;
+    padding: 8px;
     border-radius: 4px;
     margin: 5px 0;
 }
 
-.output span, .calculations span {
+.output-section span {
     font-weight: bold;
     color: #005a9c;
 }
 
-.calculations hr {
+.section-divider {
     border: 0;
-    border-top: 1px solid #ccc;
-    margin: 10px 0;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.formula-box {
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.live-eq {
+    font-size: 1em;
+    min-height: 50px;
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #005a9c;
+    font-size: 1.2em;
+    border-bottom: 2px solid #005a9c;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+h3 {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 5px;
 }

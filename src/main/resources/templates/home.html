@@ -15,8 +15,9 @@
     </header>
 
     <main class="container">
-        <div class="controls">
-            <h2>Simulation Controls</h2>
+        <!-- Column 1: Controls -->
+        <div class="panel controls-panel">
+            <h2>Controls</h2>
             <div class="control-group">
                 <label for="observerSpeed">Observer Speed (m/s):</label>
                 <input type="number" id="observerSpeed" value="0">
@@ -33,62 +34,60 @@
                 <label for="sourcePower">Source Power (Watts):</label>
                 <input type="number" id="sourcePower" value="100">
             </div>
-            <button id="startButton" onclick="startSimulation()">Start</button>
-            <button id="stopButton" onclick="stopSimulation()" disabled>Stop</button>
-            <button id="resetButton" onclick="resetSimulation()">Reset</button>
-            <button id="toggleWavesButton" onclick="toggleWaves()">Hide Waves</button>
+            <div class="button-group">
+                <button id="startButton" onclick="startSimulation()">Start</button>
+                <button id="stopButton" onclick="stopSimulation()" disabled>Stop</button>
+                <button id="resetButton" onclick="resetSimulation()">Reset</button>
+                <button id="toggleWavesButton" onclick="toggleWaves()">Hide Waves</button>
+            </div>
         </div>
 
-        <div class="simulation-pane" id="simulationPane">
+        <!-- Column 2: Simulation (Main Focus) -->
+        <div class="panel simulation-panel" id="simulationPane">
             <!-- Canvas for drawing waves -->
             <canvas id="waveCanvas"></canvas>
             
             <div id="observer" class="object">
-                <div class="icon">🧍</div>
+                <!-- Using an img tag to cycle through individual frame images -->
+                <img id="observerIcon" th:src="@{/Sprites/Walking_1.png}" alt="Observer" class="observer-img sprite-icon">
                 <span>Observer</span>
             </div>
             <div id="ambulance" class="object">
-                <div class="icon">🚑</div>
+                <!-- Using the webp image -->
+                <img th:src="@{/Sprites/ambulance.webp}" alt="Ambulance" class="ambulance-img sprite-icon">
                 <span>Ambulance</span>
             </div>
         </div>
         
-        <div class="data-container">
-            <div class="output">
+        <!-- Column 3: Data & Calculations -->
+        <div class="panel data-panel">
+            <div class="output-section">
                 <h2>Live Data</h2>
                 <p>Observed Frequency: <span id="observedFreq">N/A</span> Hz</p>
                 <p>Distance: <span id="distance">N/A</span> m</p>
                 <p>Sound Intensity: <span id="intensity">N/A</span> W/m²</p>
             </div>
             
-            <div class="calculations">
-                <h2>Calculation Details</h2>
+            <hr class="section-divider">
+            
+            <div class="calc-section">
+                <h2>Calculations</h2>
                 <div id="calcDetails">
                     <h3>Doppler Shift</h3>
-                    <p><strong>Formula:</strong></p>
-                    <div id="staticDopplerFormula">
+                    <div id="staticDopplerFormula" class="formula-box">
                         $$ f' = f_0 \left( \frac{v + v_0}{v - v_s} \right) $$
                     </div>
-                    
-                    <hr>
-                    
-                    <p><strong>Live Calculation:</strong></p>
-                    <!-- Container for dynamic LaTeX -->
-                    <div id="liveDopplerEq" style="font-size: 1.1em; min-height: 60px;">
+                    <div id="liveDopplerEq" class="live-eq">
                         $$ f' = 500 \left( \frac{343 + 0.00}{343 - 0.00} \right) = 500.00 \text{ Hz} $$
                     </div>
                     
                     <hr>
                     
-                    <h3>Intensity (2D Cylindrical Wave)</h3>
-                    <p><strong>Formula:</strong></p>
-                    <div id="staticIntensityFormula">
+                    <h3>Intensity</h3>
+                    <div id="staticIntensityFormula" class="formula-box">
                         $$ I = \frac{P}{2\pi r} $$
                     </div>
-                    
-                    <p><strong>Live Calculation:</strong></p>
-                    <!-- Container for dynamic LaTeX -->
-                    <div id="liveIntensityEq" style="font-size: 1.1em; min-height: 60px;">
+                    <div id="liveIntensityEq" class="live-eq">
                         $$ I = \frac{100}{2\pi (0.00)} = 0.00 \text{ W/m}^2 $$
                     </div>
                 </div>
@@ -96,6 +95,10 @@
         </div>
     </main>
 
+    <!-- Load scripts in correct dependency order -->
+    <script th:src="@{/js/AudioController.js}"></script>
+    <script th:src="@{/js/WaveVisualizer.js}"></script>
+    <script th:src="@{/js/Simulation.js}"></script>
     <script th:src="@{/js/app.js}"></script>
 </body>
 </html>
