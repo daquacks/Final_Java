@@ -16,24 +16,30 @@ const intensityEl = document.getElementById('intensity');
 const liveDopplerEq = document.getElementById('liveDopplerEq');
 const liveIntensityEq = document.getElementById('liveIntensityEq');
 
-// --- Initialize Components ---
+/**
+ * Component initialization
+ * AudioController: Manages sound generation and updates based on the calculations in DopplerController.
+ * WaveVisualizer: Handles the canvas rendering of sound waves emitted by the source.
+ * Simulation: Core logic that updates positions, calculates Doppler effects, and communicates with the backend.
+ * */
+
 const audioController = new AudioController();
 const waveVisualizer = new WaveVisualizer('waveCanvas', 'simulationPane');
 const simulation = new Simulation(audioController, waveVisualizer);
 
 let frameCount = 0;
 
-// --- Callbacks ---
-
+// Event managers for simulation updates
 simulation.onUpdateUI = (data) => {
-    // Update basic text
+    // Updates basic text with 2, 2, and 4 decimal places respectively by extracting the relevant values from the data object
     observedFreqEl.textContent = data.observedFreq.toFixed(2);
     distanceEl.textContent = data.totalDistance.toFixed(2); 
     intensityEl.textContent = data.intensityWatts.toFixed(4);
 
-    // Update LaTeX Equations (Throttled)
-    frameCount++;
-    if (frameCount % 10 === 0) { 
+    // Updates LaTeX equations every 10 frames to avoid excessive re-rendering
+    frameCount++; // Increment frame count on each update
+    if (frameCount % 10 === 0) { // Every 10 frames, updates the LaTeX equations with the latest values from the data object
+        // See updateLatex function
         updateLatex(data.baseFreq, data.vObserverRadial, data.vSourceRadial, data.observedFreq, data.sourcePower, data.totalDistance, data.intensityWatts);
     }
 };
@@ -43,7 +49,7 @@ simulation.onStop = (finished) => {
     stopButton.disabled = true;
 };
 
-// --- Helper Functions ---
+// Helper functions (simplify everything)
 
 function getInputs() {
     return {
