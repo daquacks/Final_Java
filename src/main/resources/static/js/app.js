@@ -88,7 +88,7 @@ window.stopSimulation = () => {
 
 window.resetSimulation = () => {
     simulation.stop(true);
-    
+    toggleWavesButton.disabled=true;
     observedFreqEl.textContent = 'N/A';
     distanceEl.textContent = 'N/A';
     intensityEl.textContent = 'N/A';
