@@ -3,17 +3,17 @@ class Simulation {
         this.audio = audioController;
         this.waves = waveVisualizer;
         
-        // DOM Elements
+        // DOM elements (allow dynamic interaction)
         this.observerEl = document.getElementById('observer');
         this.observerIcon = document.getElementById('observerIcon'); 
         this.ambulanceEl = document.getElementById('ambulance');
         this.simulationPane = document.getElementById('simulationPane');
         
-        // Physics State
+        // Physics state
         this.isRunning = false;
         this.isPaused = false;
         this.animationFrameId = null;
-        this.sourceX = -50; 
+        this.sourceX = -25;
         this.observerX = 0;
         this.simulationTime = 0; 
         
@@ -29,7 +29,7 @@ class Simulation {
         this.spriteTimer = 0;
         this.spriteAnimationSpeed = 0.1; // Seconds per frame
         
-        // UI Callbacks
+        // UI parameters
         this.onUpdateUI = null;
         this.onStop = null;
 
@@ -39,17 +39,20 @@ class Simulation {
     initObserverDragging() {
         let isDragging = false;
 
+        // Checks if the observer is running; if he isn't, it lets the user drag him
         this.observerEl.addEventListener('mousedown', () => {
             if (this.isRunning) return; 
             isDragging = true;
             this.observerIcon.style.cursor = 'grabbing';
         });
 
+        // Works only if the observer is not running. The event listener checks whether the mouse is moving now.
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            
+
+            // getBoundingClientRect returns DOMRect object, with contains the HTML object (including padding and border)
             const paneRect = this.simulationPane.getBoundingClientRect();
-            let newLeft = e.clientX - paneRect.left;
+            let newLeft = e.clientX - paneRect.left; //
             
             if (newLeft < 0) newLeft = 0;
             if (newLeft > paneRect.width) newLeft = paneRect.width;
@@ -107,11 +110,8 @@ class Simulation {
             }
         }
         
-        // Ensure the src path matches what Spring Boot is serving.
-        // It must be exactly /Sprites/Walking_X.png based on your directory structure
         const newSrc = `/Sprites/Walking_${this.currentFrame}.png`;
         
-        // Only update DOM if source actually changed to prevent flickering
         if (!this.observerIcon.src.endsWith(newSrc)) {
             this.observerIcon.src = newSrc;
         }
@@ -137,9 +137,13 @@ class Simulation {
             const observerPixelX = parseFloat(this.observerEl.style.left || getComputedStyle(this.observerEl).left);
             this.observerX = (observerPixelX - centerX) / this.PIXELS_PER_METER;
             
-            this.sourceX = -50; 
-            if (this.sourceX > this.observerX - 20) {
-                this.sourceX = this.observerX - 50;
+            // Fixed starting position logic:
+            // If source is moving right (>0), it should start to the LEFT of the observer
+            // If source is moving left (<0), it should start to the RIGHT of the observer
+            if (inputs.sourceSpeed >= 0) {
+                this.sourceX = this.observerX - 50; 
+            } else {
+                this.sourceX = this.observerX + 50;
             }
             
             this.waves.clear();
@@ -154,7 +158,6 @@ class Simulation {
     async loop(inputs) {
         if (!this.isRunning) return;
 
-        // Note: dt is simulation time, let's use real dt for sprite animation so it's smooth
         const simDt = (1/60) * this.TIME_SCALE;
         const realDt = 1/60;
         
@@ -170,10 +173,8 @@ class Simulation {
         this.ambulanceEl.style.left = `${visualSourceX}px`;
         this.observerEl.style.left = `${visualObserverX}px`;
         
-        // Update Sprites
         this.updateSprite(inputs.observerSpeed, realDt);
         
-        // If ambulance moves left, flip it
         const ambulanceImg = this.ambulanceEl.querySelector('.ambulance-img');
         if (ambulanceImg) {
             ambulanceImg.style.transform = inputs.sourceSpeed < 0 ? 'scaleX(-1)' : 'scaleX(1)';
@@ -191,7 +192,6 @@ class Simulation {
         const vObserverRadial = inputs.observerSpeed * (-ux);
 
         try {
-            // Call Java Backend
             const freqResponse = await fetch(`/calculate-frequency?sourceFrequency=${inputs.baseFreq}&sourceVelocity=${vSourceRadial}&observerVelocity=${vObserverRadial}`);
             const freqData = await freqResponse.json();
             const observedFreq = freqData.observedFrequency;
@@ -200,7 +200,6 @@ class Simulation {
             const intData = await intResponse.json();
             const intensityWatts = intData.intensity;
 
-            // Audio Volume calculation
             const referenceIntensity = 1.59; 
             let gainValue = intensityWatts / referenceIntensity;
             gainValue = Math.min(gainValue, 1.0); 
@@ -218,7 +217,25 @@ class Simulation {
             console.error("Error fetching calculation:", error);
         }
 
-        if (visualSourceX > this.simulationPane.offsetWidth + 100 || visualSourceX < -100) {
+        // --- FIXED END CONDITION ---
+        let isFinished = false;
+        
+        // Use physics position (sourceX) against pane width in physics units for consistency
+        const halfWidthMeters = (this.simulationPane.offsetWidth / 2) / this.PIXELS_PER_METER;
+        
+        if (inputs.sourceSpeed >= 0) {
+            // Moving Right: Stop when it passes the right edge
+            if (this.sourceX > halfWidthMeters + 20) { 
+                isFinished = true;
+            }
+        } else {
+            // Moving Left: Stop when it passes the left edge
+            if (this.sourceX < -halfWidthMeters - 20) {
+                isFinished = true;
+            }
+        }
+
+        if (isFinished) {
             this.stop(true); 
         } else {
             this.animationFrameId = requestAnimationFrame(() => this.loop(inputs));
@@ -232,7 +249,6 @@ class Simulation {
         
         this.audio.fadeOut();
         
-        // Stop animation (return to idle)
         this.updateSprite(0, 0);
         
         this.isPaused = !finished;

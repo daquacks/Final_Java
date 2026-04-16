@@ -117,7 +117,8 @@ button {
 #resetButton:hover { background-color: #c82333; }
 
 #toggleWavesButton { background-color: #6c757d; }
-#toggleWavesButton:hover { background-color: #5a6268; }
+#toggleWavesButton:hover:not(:disabled) { background-color: #5a6268; }
+#toggleWavesButton:disabled { background-color: #adb5bd; cursor: not-allowed; }
 
 /* Simulation Styling */
 #waveCanvas {
@@ -176,7 +177,7 @@ button {
 
 #ambulance { 
     left: -100px; 
-    z-index: 1; /* Below observer */
+    z-index: 1; /* Below ambulance */
 }
 
 /* Data Panel Styling */
