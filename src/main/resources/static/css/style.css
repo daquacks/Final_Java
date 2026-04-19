@@ -57,7 +57,7 @@ header {
 .simulation-panel {
     flex: 3;
     position: relative;
-    /* Sky, Road, Sidewalk, Grass Gradient */
+    /* Sky, road, sidewalk, grass Gradient */
     background: linear-gradient(
         to bottom,
         #87CEEB 0%,     /* Sky starts */

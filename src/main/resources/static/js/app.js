@@ -113,9 +113,11 @@ function showVolumePopup() {
     }, 3000); // Hides after 3 sec
 }
 
-function showErrorPopup() {
+function showErrorPopup(message) {
     const popup = document.getElementById('errorPopup');
-
+    if (message) {
+        popup.textContent = message;
+    }
     // Reset animation if it's already running
     popup.classList.remove('show', 'fade-out');
     // Force reflow
@@ -138,13 +140,29 @@ window.startSimulation = () => {
     // Prevent negative or zero frequency and power
     const freq = parseFloat(sourceFreqInput.value);
     const power = parseFloat(sourcePowerInput.value);
+    const ambulanceSpeed = parseFloat(sourceSpeedInput.value);
+    const observerSpeed = parseFloat(observerSpeedInput.value);
     
-    if (freq <= 0 || power <= 0) {
-        showErrorPopup();
+    if (freq <= 0 || power <= 0 || ambulanceSpeed > 50) {
+
         // Reset the inputs to safe values
-        if (freq <= 0) sourceFreqInput.value = 500;
-        if (power <= 0) sourcePowerInput.value = 100;
+        if (freq <= 0) {
+            sourceFreqInput.value = 500;
+            showErrorPopup();
+        }
+        if (power <= 0) {
+            sourcePowerInput.value = 100;
+            showErrorPopup();
+        }
+        if (ambulanceSpeed > 50) {
+            sourceSpeedInput.value = 30;
+            showErrorPopup("Try a lower speed... Your ambulance is going kind of fast...");
+        }
+
         return; // Stop here so simulation doesn't start
+    }
+    if (observerSpeed > 50) {
+        showErrorPopup("WATCH OUT!!! HE'S RUNNING AWAY!!!");
     }
 
     waveVisualizer.showWaves=true;

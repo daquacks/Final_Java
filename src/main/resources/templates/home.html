@@ -15,24 +15,24 @@
     </header>
 
     <main class="container">
-        <!-- Column 1: Controls -->
+        <!-- Column 1: Controls with default values and buttons -->
         <div class="panel controls-panel">
             <h2>Controls</h2>
             <div class="control-group">
-                <label for="observerSpeed">Observer Speed (m/s):</label>
+                <label for="observerSpeed">Observer Speed (m/s)</label>
                 <input type="number" id="observerSpeed" value="0">
             </div>
             <div class="control-group">
-                <label for="sourceSpeed">Ambulance Speed (m/s):</label>
+                <label for="sourceSpeed">Ambulance Speed (m/s)</label>
                 <input type="number" id="sourceSpeed" value="30">
             </div>
             <div class="control-group">
-                <label for="sourceFreq">Source Frequency (Hz):</label>
+                <label for="sourceFreq">Source Frequency (Hz)</label>
                 <input type="number" id="sourceFreq" value="500" min="0.1">
             </div>
             <div class="control-group">
-                <label for="sourcePower">Source Power (Watts):</label>
-                <input type="number" id="sourcePower" value="100" min="0.1">
+                <label for="sourcePower">Source Power (W) - CAREFUL! IT'S LOUD!</label>
+                <input type="number" id="sourcePower" value="10" min="0.1">
             </div>
             <div class="button-group">
                 <button id="startButton" onclick="startSimulation()">Start</button>
@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <!-- Column 2: Simulation (Main Focus) -->
+        <!-- Column 2: Simulation (Main focus) -->
         <div class="panel simulation-panel" id="simulationPane">
             <!-- Canvas for drawing waves -->
             <canvas id="waveCanvas"></canvas>
@@ -59,7 +59,7 @@
             </div>
         </div>
         
-        <!-- Column 3: Data & Calculations -->
+        <!-- Column 3: Data & calculations -->
         <div class="panel data-panel">
             <div class="output-section">
                 <h2>Live Data</h2>
@@ -70,7 +70,7 @@
             
             <hr class="section-divider">
             
-            <div class="calc-section">
+            <div class="calc-section"> <!-- For those who are new to the stream, calc is short for calculator-->
                 <h2>Calculations</h2>
                 <div id="calcDetails">
                     <h3>Doppler Shift</h3>

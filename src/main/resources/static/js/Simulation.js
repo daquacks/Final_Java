@@ -193,7 +193,7 @@ class Simulation {
         }
 
         // Then, updates the waves
-        this.waves.update(simDt, this.simulationTime, this.isRunning, this.isPaused, this.sourceX, inputs.sourceSpeed);
+        this.waves.update(simDt, this.simulationTime, this.isRunning, this.isPaused, this.sourceX);
         this.waves.draw(inputs.sourceSpeed);
 
         // The reason it needs passing distance is that r!=0 (no division by 0) and ambulance speed breaks if dy is not there too
@@ -216,9 +216,10 @@ class Simulation {
             const intData = await intResponse.json();
             const intensityWatts = intData.intensity;
 
+            // Reference intensity is I when r=10m and P=100W
             const referenceIntensity = 1.59; 
             let gainValue = intensityWatts / referenceIntensity;
-            gainValue = Math.min(gainValue, 1.0); 
+            gainValue = Math.min(gainValue, 1.0); // Caps gain at 1.0 (100%) to respect speaker values
 
             this.audio.updateSound(observedFreq, gainValue);
 
