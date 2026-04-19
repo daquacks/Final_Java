@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Doppler Effect Simulator</title>
+    <title>Doppler Effect Simulator - Cristian Mitrea, Paul-Antoine Pilotte, David Alexandre Veilleux</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <!-- Import MathJax for LaTeX rendering -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -11,7 +11,7 @@
 <body>
 
     <header>
-        <h1>Doppler Effect Simulator</h1>
+        <h1>Doppler Effect Simulator - Cristian Mitrea, Paul-Antoine Pilotte, David Alexandre Veilleux</h1>
     </header>
 
     <main class="container">
@@ -63,9 +63,9 @@
         <div class="panel data-panel">
             <div class="output-section">
                 <h2>Live Data</h2>
-                <p>Observed Frequency: <span id="observedFreq">N/A</span> Hz</p>
-                <p>Distance: <span id="distance">N/A</span> m</p>
-                <p>Sound Intensity: <span id="intensity">N/A</span> W/m²</p>
+                <p>Observed Frequency: <span id="observedFreq">---</span> Hz</p>
+                <p>Distance: <span id="distance">---</span> m</p>
+                <p>Sound Intensity: <span id="intensity">---</span> W/m²</p>
             </div>
             
             <hr class="section-divider">
@@ -88,11 +88,14 @@
                         $$ I = \frac{P}{2\pi r} $$
                     </div>
                     <div id="liveIntensityEq" class="live-eq">
-                        $$ I = \frac{100}{2\pi (0.00)} = 0.00 \text{ W/m}^2 $$
+                        $$ I = \frac{100}{2\pi (--)} = -- \text{ W/m}^2 $$
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Column 4: Popups -->
+        <div id="volumePopup" class="popup">Please turn up your volume.</div>
     </main>
 
     <!-- Load scripts in correct dependency order -->

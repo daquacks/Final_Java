@@ -32,6 +32,8 @@ class Simulation {
         // UI parameters
         this.onUpdateUI = null;
         this.onStop = null;
+        this.simulationPaneWidth = this.simulationPane.offsetWidth;
+        this.halfWidthMeters = this.simulationPaneWidth/2 / this.PIXELS_PER_METER // Converts in meters in the project
 
         this.initObserverDragging();
     }
@@ -77,11 +79,13 @@ class Simulation {
         
         this.observerEl.style.left = `${centerX}px`;
         this.observerX = 0;
-        
-        this.sourceX = -50;
+
+        const halfWidthMeters = (this.simulationPane.offsetWidth / 2) / this.PIXELS_PER_METER;
+        this.sourceX = -halfWidthMeters-100; // Put it really far off screen
         const visualSourceX = centerX + (this.sourceX * this.PIXELS_PER_METER);
         this.ambulanceEl.style.left = `${visualSourceX}px`;
-        
+
+
         this.waves.clear();
         this.simulationTime = 0;
         
@@ -136,14 +140,12 @@ class Simulation {
         if (!this.isPaused) {
             const observerPixelX = parseFloat(this.observerEl.style.left || getComputedStyle(this.observerEl).left);
             this.observerX = (observerPixelX - centerX) / this.PIXELS_PER_METER;
-            
-            // Fixed starting position logic:
-            // If source is moving right (>0), it should start to the LEFT of the observer
-            // If source is moving left (<0), it should start to the RIGHT of the observer
+            // If source is moving right (>0), start on left
+            // Else start on right
             if (inputs.sourceSpeed >= 0) {
-                this.sourceX = this.observerX - 50; 
+                this.sourceX = -this.halfWidthMeters;
             } else {
-                this.sourceX = this.observerX + 50;
+                this.sourceX = this.halfWidthMeters;
             }
             
             this.waves.clear();
@@ -252,6 +254,8 @@ class Simulation {
         this.updateSprite(0, 0);
         
         this.isPaused = !finished;
+
+        this.waves.toggle();
         
         if (this.onStop) this.onStop(finished);
     }

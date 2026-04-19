@@ -1,15 +1,15 @@
-// --- DOM Elements ---
+// DOM elements
 const startButton = document.getElementById('startButton');
 const stopButton = document.getElementById('stopButton');
 const toggleWavesButton = document.getElementById('toggleWavesButton');
 
-// Input Elements
+// Input elements
 const observerSpeedInput = document.getElementById('observerSpeed');
 const sourceSpeedInput = document.getElementById('sourceSpeed');
 const sourceFreqInput = document.getElementById('sourceFreq');
 const sourcePowerInput = document.getElementById('sourcePower');
 
-// Output Elements
+// Output elements
 const observedFreqEl = document.getElementById('observedFreq');
 const distanceEl = document.getElementById('distance');
 const intensityEl = document.getElementById('intensity');
@@ -18,8 +18,8 @@ const liveIntensityEq = document.getElementById('liveIntensityEq');
 
 /**
  * Component initialization
- * AudioController: Manages sound generation and updates based on the calculations in DopplerController.
- * WaveVisualizer: Handles the canvas rendering of sound waves emitted by the source.
+ * AudioController: Manages sound generation and updates based on the calculations in DopplerController
+ * WaveVisualizer: Handles the canvas rendering of sound waves emitted by the source
  * Simulation: Core logic that updates positions, calculates Doppler effects, and communicates with the backend.
  * */
 
@@ -41,9 +41,9 @@ simulation.onUpdateUI = (data) => {
     distanceEl.textContent = data.totalDistance.toFixed(2); 
     intensityEl.textContent = data.intensityWatts.toFixed(4);
 
-    // Updates LaTeX equations every 10 frames to avoid excessive re-rendering
+    // Updates LaTeX equations every 5 frames to avoid excessive re-rendering
     frameCount++; // Increment frame count on each update
-    if (frameCount % 10 === 0) { // Every 10 frames, updates the LaTeX equations with the latest values from the data object
+    if (frameCount % 5 === 0) { // Every 5 frames, updates the LaTeX equations with the latest values from the data object
         // See updateLatex function
         updateLatex(data.baseFreq, data.vObserverRadial, data.vSourceRadial, data.observedFreq, data.sourcePower, data.totalDistance, data.intensityWatts);
     }
@@ -55,8 +55,22 @@ simulation.onStop = (finished) => {
     stopButton.disabled = true;
     
     // Also disable toggle waves button when stopped/finished
-    if (finished && toggleWavesButton) {
+    if (finished) {
         toggleWavesButton.disabled = true;
+        observedFreqEl.textContent = '---';
+        distanceEl.textContent = '---';
+        intensityEl.textContent = '---';
+
+        // Sets LaTeX equations back to default
+        if (liveDopplerEq && liveIntensityEq) {
+            liveDopplerEq.innerHTML = `$$ f' = 500 \\left( \\frac{343 + 0.00}{343 - 0.00} \\right) = 500.00 \\text{ Hz} $$`;
+            liveIntensityEq.innerHTML = `$$ I = \\frac{100}{2\\pi (--)} = -- \\text{ W/m}^2 $$`;
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise([liveDopplerEq, liveIntensityEq]);
+            }
+        }
+
+        simulation.resetPositions();
     }
 };
 
@@ -90,6 +104,15 @@ function updateLatex(f0, v0, vs, fPrime, P, r, I) {
     }
 }
 
+// Shows the popup to remind the user to increase volume
+function showVolumePopup() {
+    const popup = document.getElementById('volumePopup');
+    popup.classList.add('show') // Shows popup
+    setTimeout(() => {
+        popup.classList.add('fade-out'); // Removes popup by fading out
+    }, 3000); // Hides after 3 sec
+}
+
 // Global event handlers
 
 // startSimulation parameter redefined as one that disables start and enables stop buttons, then starts simulation with specific inputs
@@ -101,6 +124,7 @@ window.startSimulation = () => {
     if (toggleWavesButton) {
         toggleWavesButton.disabled = false;
     }
+    showVolumePopup();
     simulation.start(getInputs());
 };
 
@@ -115,14 +139,14 @@ window.resetSimulation = () => {
         toggleWavesButton.disabled = true;
     }
     
-    observedFreqEl.textContent = 'N/A';
-    distanceEl.textContent = 'N/A';
-    intensityEl.textContent = 'N/A';
+    observedFreqEl.textContent = '---';
+    distanceEl.textContent = '---';
+    intensityEl.textContent = '---';
 
     // Sets LaTeX equations back to default
     if (liveDopplerEq && liveIntensityEq) {
         liveDopplerEq.innerHTML = `$$ f' = 500 \\left( \\frac{343 + 0.00}{343 - 0.00} \\right) = 500.00 \\text{ Hz} $$`;
-        liveIntensityEq.innerHTML = `$$ I = \\frac{100}{2\\pi (0.00)} = 0.00 \\text{ W/m}^2 $$`;
+        liveIntensityEq.innerHTML = `$$ I = \\frac{100}{2\\pi (--)} = -- \\text{ W/m}^2 $$`;
         if (typeof MathJax !== 'undefined') {
             MathJax.typesetPromise([liveDopplerEq, liveIntensityEq]);
         }
