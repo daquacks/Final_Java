@@ -28,11 +28,11 @@
             </div>
             <div class="control-group">
                 <label for="sourceFreq">Source Frequency (Hz):</label>
-                <input type="number" id="sourceFreq" value="500">
+                <input type="number" id="sourceFreq" value="500" min="0.1">
             </div>
             <div class="control-group">
                 <label for="sourcePower">Source Power (Watts):</label>
-                <input type="number" id="sourcePower" value="100">
+                <input type="number" id="sourcePower" value="100" min="0.1">
             </div>
             <div class="button-group">
                 <button id="startButton" onclick="startSimulation()">Start</button>
@@ -96,6 +96,7 @@
 
         <!-- Column 4: Popups -->
         <div id="volumePopup" class="popup">Please turn up your volume.</div>
+        <div id="errorPopup" class="popup">Source Frequency and Source Power must be strictly positive (greater than 0).</div>
     </main>
 
     <!-- Load scripts in correct dependency order -->

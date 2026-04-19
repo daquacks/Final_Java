@@ -113,11 +113,40 @@ function showVolumePopup() {
     }, 3000); // Hides after 3 sec
 }
 
+function showErrorPopup() {
+    const popup = document.getElementById('errorPopup');
+
+    // Reset animation if it's already running
+    popup.classList.remove('show', 'fade-out');
+    // Force reflow
+    void popup.offsetWidth;
+
+    popup.classList.add('show');
+    setTimeout(() => {
+        popup.classList.add('fade-out');
+        setTimeout(() => {
+            popup.classList.remove('show', 'fade-out');
+        }, 1000);
+    }, 4000); // Show error for slightly longer
+}
+
 // Global event handlers
 
 // startSimulation parameter redefined as one that disables start and enables stop buttons, then starts simulation with specific inputs
 // Also enables the toggle waves button
 window.startSimulation = () => {
+    // Prevent negative or zero frequency and power
+    const freq = parseFloat(sourceFreqInput.value);
+    const power = parseFloat(sourcePowerInput.value);
+    
+    if (freq <= 0 || power <= 0) {
+        showErrorPopup();
+        // Reset the inputs to safe values
+        if (freq <= 0) sourceFreqInput.value = 500;
+        if (power <= 0) sourcePowerInput.value = 100;
+        return; // Stop here so simulation doesn't start
+    }
+
     waveVisualizer.showWaves=true;
     startButton.disabled = true;
     stopButton.disabled = false;

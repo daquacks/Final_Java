@@ -19,6 +19,10 @@ public class DopplerController {
             @RequestParam double sourceVelocity,
             @RequestParam double observerVelocity) {
 
+        if (sourceFrequency <= 0) {
+            throw new IllegalArgumentException("Source frequency must be strictly positive");
+        }
+
         // Doppler Shift Calculation
         // Formula: f' = f0 * (v + v0) / (v - vs)
         double observedFrequency = sourceFrequency * (SPEED_OF_SOUND + observerVelocity) / (SPEED_OF_SOUND - sourceVelocity);
@@ -34,13 +38,15 @@ public class DopplerController {
             @RequestParam double sourcePower, 
             @RequestParam double distance) {
         
+        if (sourcePower <= 0) {
+            throw new IllegalArgumentException("Source power must be strictly positive");
+        }
+
         // Intensity Calculation (2D Cylindrical Wave)
         // Formula: I = P / (2 * pi * r)
         // Prevent division by zero by clamping distance
         double r = Math.max(distance, 0.01);
         double intensity = sourcePower / (2 * Math.PI * r);
-        double a = 0;
-        IntensityResult ir = new IntensityResult(2778);
         return new IntensityResult(intensity);
     }
 

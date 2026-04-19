@@ -2,13 +2,13 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f2f5;
+    background-color: #c0c4c9;
     color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent body scroll if possible */
+    height: 100vh;
+    overflow: hidden;
 }
 
 header {
@@ -23,57 +23,76 @@ header {
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size:13px;
-    flex-shrink: 0; /* Don't shrink header */
+    flex-shrink: 0;
 }
 
 .container {
     width: 98%;
     max-width: 1800px;
-    flex-grow: 1; /* Fill remaining height */
+    flex-grow: 1;
     display: flex;
-    flex-direction: row; /* Side-by-side layout */
+    flex-direction: row;
     gap: 15px;
     padding: 15px 0;
     box-sizing: border-box;
-    overflow: hidden; /* Contain children */
+    overflow: hidden;
 }
 
-/* Common Panel Styles */
 .panel {
-    background: white;
+    background: #e1e3e5;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     padding: 20px;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* Scroll if content is too long */
+    overflow-y: auto;
 }
 
-/* Column 1: Controls */
 .controls-panel {
-    flex: 1; /* Takes 1 part */
+    flex: 1;
     min-width: 250px;
     max-width: 300px;
 }
 
-/* Column 2: Simulation (Main Focus) */
 .simulation-panel {
-    flex: 3; /* Takes 3 parts (Largest) */
+    flex: 3;
     position: relative;
-    background-color: #eef;
+    /* Sky, Road, Sidewalk, Grass Gradient */
+    background: linear-gradient(
+        to bottom,
+        #87CEEB 0%,     /* Sky starts */
+        #87CEEB 30%,    /* Sky ends */
+        #7b8b9a 30%,    /* Road starts */
+        #7b8b9a 60%,    /* Road ends */
+        #e0e0e0 60%,    /* Sidewalk starts */
+        #e0e0e0 70%,    /* Sidewalk ends */
+        #4CAF50 70%,    /* Grass starts */
+        #4CAF50 100%    /* Grass ends */
+    );
     border: 2px solid #ccc;
-    padding: 0; /* No padding for canvas */
-    overflow: hidden; /* Hide objects going off screen */
+    padding: 0;
+    overflow: hidden;
 }
 
-/* Column 3: Data & Calculations */
+/* Dashed line down the middle of the road */
+.simulation-panel::after {
+    content: '';
+    position: absolute;
+    top: 45%; /* Middle of the road area (30% to 60%) */
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: repeating-linear-gradient(to right, white 0, white 20px, transparent 20px, transparent 40px);
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
 .data-panel {
-    flex: 1.5; /* Takes 1.5 parts */
+    flex: 1.5;
     min-width: 350px;
     max-width: 450px;
 }
 
-/* Controls Styling */
 .control-group {
     margin-bottom: 15px;
 }
@@ -125,7 +144,6 @@ button {
 #toggleWavesButton:hover:not(:disabled) { background-color: #5a6268; }
 #toggleWavesButton:disabled { background-color: #adb5bd; cursor: not-allowed; }
 
-/* Simulation Styling */
 #waveCanvas {
     position: absolute;
     top: 0;
@@ -137,55 +155,50 @@ button {
 
 .object {
     position: absolute;
-    bottom: 50%;
-    transform: translate(-50%, 50%); /* Centers the object on its left coordinate */
-    /* width: 80px; removed explicit width so it sizes to content */
+    transform: translate(-50%, 0);
     text-align: center;
     transition: transform 0.1s linear;
     z-index: 1;
-    pointer-events: auto; /* Allow clicking */
+    pointer-events: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .object span {
-    background-color: rgba(255,255,255,0.7);
-    padding: 2px 5px;
-    border-radius: 3px;
-    font-weight: bold;
-    font-size: 0.8em;
-    margin-top: 5px;
+    display: none; 
 }
 
-/* Sprite Styling */
 .sprite-icon {
     display: block;
     margin: 0 auto;
 }
 
 .ambulance-img {
-    width: 100px; /* Adjust based on your actual webp size */
+    width: 200px;
     height: auto;
 }
 
 .observer-img {
-    height: 64px; /* Reduced from maybe too big down to 64px */
+    height: 64px;
     width: auto; 
     cursor: grab;
 }
 
 #observer { 
     left: 50%; 
-    z-index: 2; /* Put observer above ambulance */
+    z-index: 2; 
+    /* Bottom of observer touches the middle of the sidewalk (65%) */
+    top: calc(65% - 64px); 
 }
 
 #ambulance { 
     left: -100px; 
-    z-index: 1; /* Below ambulance */
+    z-index: 1; 
+    /* Center of ambulance is vertically aligned with dashed line (45%) */
+    top: calc(45% - 50px); /* Assuming 100px height for ambulance roughly */
 }
 
-/* Data Panel Styling */
 .output-section p {
     font-size: 1em;
     background: #e9ecef;
@@ -233,13 +246,14 @@ h3 {
     margin-bottom: 5px;
 }
 
-#volumePopup {
+.popup {
     display:flex;
     background-color: #87929a;
     color:white;
     padding:10px 20px;
     height: 50px;
-    width: 300px;
+    width: auto;
+    max-width: 400px;
     border-radius:30px;
     position:fixed;
     left:50%;
@@ -250,11 +264,12 @@ h3 {
     align-items: center;
     justify-content: center;
     text-align:center;
-    font-size: 20px;
+    font-size: 16px;
     bottom:10%;
+    z-index: 100;
 }
 
-#volumePopup.show {
+.popup.show {
     opacity:1;
     visibility:visible;
     transition: opacity 0.5s ease-in-out;
@@ -265,6 +280,6 @@ h3 {
     100% {opacity: 0; visibility: hidden;}
 }
 
-#volumePopup.fade-out {
-    animation: fadeOut 1s forwards; /* Forwards keeps final state */
+.popup.fade-out {
+    animation: fadeOut 1s forwards;
 }

@@ -55,7 +55,22 @@ class AudioController {
     }
 
     fadeOut(duration = 0.5) {
-        if (!this.isInitialized || !this.gainNode) return;
-        this.gainNode.gain.setTargetAtTime(0, this.audioContext.currentTime, duration);
+        if (!this.isInitialized || !this.audioContext) return;
+        
+        // Ensure gainNode is defined
+        if (this.gainNode) {
+             // Instead of fading out over time, we completely silence it immediately
+             // This prevents the sound from bleeding through after pause/stop
+             this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
+             this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
+             this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.1); // quick fade to avoid click
+        }
+        
+        // Also physically suspend the audio context to guarantee silence
+        if (this.audioContext.state === 'running') {
+            setTimeout(() => {
+                this.audioContext.suspend();
+            }, 150); // Suspend slightly after the quick fade
+        }
     }
 }
