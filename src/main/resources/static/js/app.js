@@ -141,7 +141,7 @@ window.startSimulation = () => {
     const power = parseFloat(sourcePowerInput.value);
     const ambulanceSpeed = parseFloat(sourceSpeedInput.value);
     const observerSpeed = parseFloat(observerSpeedInput.value);
-    
+
     if (freq <= 0 || power <= 0 || ambulanceSpeed > 50) {
 
         // Reset the inputs to safe values
@@ -166,7 +166,7 @@ window.startSimulation = () => {
     if (freq>=20000) showErrorPopup("The human ear can't even hear anything right now...");
     if (power>100) showErrorPopup("You're going to blast your ears off.");
 
-    waveVisualizer.showWaves=true;
+    
     startButton.disabled = true;
     stopButton.disabled = false;
     if (toggleWavesButton) {
@@ -185,7 +185,9 @@ window.resetSimulation = () => {
     
     if (toggleWavesButton) {
         toggleWavesButton.disabled = true;
+        toggleWavesButton.textContent = "Hide Waves";
     }
+    waveVisualizer.showWaves = true;
     
     observedFreqEl.textContent = '---';
     distanceEl.textContent = '---';
@@ -207,6 +209,11 @@ window.toggleWaves = () => {
     if (!toggleWavesButton || toggleWavesButton.disabled) return; // Add check here just in case
     const isShowing = waveVisualizer.toggle();
     toggleWavesButton.textContent = isShowing ? "Hide Waves" : "Show Waves"; // Changes text based on boolean above
+    if (!isShowing) {
+        waveVisualizer.clear();
+        const inputs = getInputs();
+        waveVisualizer.draw(inputs.sourceSpeed);
+    }
 };
 
 // Initial Setup

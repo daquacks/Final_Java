@@ -94,6 +94,7 @@ class Simulation {
         // Reset sprite to idle
         this.currentFrame = 1;
         this.updateSprite(0, 0);
+        this.observerIcon.style.transform = 'scaleX(1)';
     }
 
     // Guess who's back? (Back again). Dt's back. (Tell a friend). Dt's back, dt's back, dt's back.
@@ -130,7 +131,7 @@ class Simulation {
         // Flip sprite if walking left
         if (observerSpeed < 0) {
             this.observerIcon.style.transform = 'scaleX(-1)';
-        } else {
+        } else if (observerSpeed>0){
             this.observerIcon.style.transform = 'scaleX(1)';
         }
     }
