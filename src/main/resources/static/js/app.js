@@ -114,20 +114,19 @@ function showVolumePopup() {
 }
 
 function showErrorPopup(message) {
-    const popup = document.getElementById('errorPopup');
-    if (message) {
-        popup.textContent = message;
-    }
-    // Reset animation if it's already running
-    popup.classList.remove('show', 'fade-out');
-    // Force reflow
-    void popup.offsetWidth;
+    const container = document.querySelector('.popup-container');
+    const popup = document.createElement('div');
+    popup.className='popup';
+    popup.textContent = message || "Source Frequency and Source Power must be strictly positive (>0)";
+    container.appendChild(popup);
 
     popup.classList.add('show');
     setTimeout(() => {
         popup.classList.add('fade-out');
         setTimeout(() => {
-            popup.classList.remove('show', 'fade-out');
+            if (popup.parentElement) {
+                popup.parentElement.removeChild(popup);
+            }
         }, 1000);
     }, 4000); // Show error for slightly longer
 }
@@ -161,9 +160,11 @@ window.startSimulation = () => {
 
         return; // Stop here so simulation doesn't start
     }
-    if (observerSpeed > 50) {
+    if (Math.abs(observerSpeed) > 50) {
         showErrorPopup("WATCH OUT!!! HE'S RUNNING AWAY!!!");
     }
+    if (freq>=20000) showErrorPopup("The human ear can't even hear anything right now...");
+    if (power>100) showErrorPopup("You're going to blast your ears off.");
 
     waveVisualizer.showWaves=true;
     startButton.disabled = true;

@@ -57,6 +57,9 @@
                 <img th:src="@{/Sprites/ambulance.webp}" alt="Ambulance" class="ambulance-img sprite-icon">
                 <span>Ambulance</span>
             </div>
+            <div class="popup-container">
+                <div id="volumePopup" class="popup">Please turn up your volume.</div>
+            </div>
         </div>
         
         <!-- Column 3: Data & calculations -->
@@ -94,9 +97,6 @@
             </div>
         </div>
 
-        <!-- Column 4: Popups -->
-        <div id="volumePopup" class="popup">Please turn up your volume.</div>
-        <div id="errorPopup" class="popup">Source Frequency and Source Power must be strictly positive (greater than 0).</div>
     </main>
 
     <!-- Load scripts in correct dependency order -->
