@@ -25,7 +25,7 @@ public class DopplerController {
 
         // Doppler Shift Calculation
         // Formula: f' = f0 * (v + v0) / (v - vs)
-        double observedFrequency = sourceFrequency * (SPEED_OF_SOUND + observerVelocity) / (SPEED_OF_SOUND - sourceVelocity);
+        double observedFrequency = sourceFrequency * (SPEED_OF_SOUND + observerVelocity) / (SPEED_OF_SOUND + sourceVelocity);
 
         return new FrequencyResult(observedFrequency);
     }
